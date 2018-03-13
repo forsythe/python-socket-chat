@@ -4,7 +4,7 @@ from threading import Thread
 HOST = input('Enter host: ')
 PORT = input('Enter port: ')
 if not PORT:
-	PORT = 12000
+	PORT = 33002
 else:
 	PORT = int(PORT)
 

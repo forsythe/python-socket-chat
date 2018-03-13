@@ -5,7 +5,7 @@ clients = {}
 addresses = {}
 
 HOST = ''
-PORT = 12000
+PORT = 33002
 BUFSIZ = 1024
 ADDR = (HOST, PORT)
 
@@ -26,16 +26,19 @@ def accept_incoming_connections():
 def handle_client(client):  # Takes client socket as argument.
 	# Handles a single client connection.
 	name = client.recv(BUFSIZ).decode()
-	client.send("Welcome {}! Type .QUIT to quit".format(name).encode())
+	
+	client.send("Welcome {}! Type .QUIT (or CTRL-C) to quit".format(name).encode())
 	incoming_msg = "{} connected as {}.".format(client.getpeername(),name)
 	print(incoming_msg)
 	broadcast(incoming_msg)
 	clients[client] = name
+	print([v for k, v in clients.items()])
+
 	while True:
 		msg = client.recv(BUFSIZ).decode()
-		if msg.strip() != ".QUIT":
+		if msg.strip() != ".QUIT" and msg.strip() != '':
 			broadcast(msg, prefix=name+": ")
-		else:
+		elif not msg:
 			#client.send(".QUIT".encode())
 			client.close()
 			del clients[client]
@@ -46,10 +49,11 @@ def handle_client(client):  # Takes client socket as argument.
 
 def broadcast(msg, prefix=""):  # prefix is for name identification.
 	# Broadcasts a message to all the clients.
-	for sock in clients:
+	for sock, name in clients.items():
 		completeMsg = prefix+msg
-		sock.send(completeMsg.encode())			
-
+		sock.send(completeMsg.encode())	
+		
+		
 if __name__ == "__main__":
 	SERVER.listen(5)  # Listens for 5 connections at max.
 	print("Waiting for connection...")
